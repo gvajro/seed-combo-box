@@ -38,6 +38,10 @@ class SCB_Frontend {
 		if ( SCB_Core::is_combo( $product ) ) {
 			$cfg = SCB_Core::get_config( $product );
 			if ( 'sum' === $cfg['mode'] && $cfg['rows'] ) {
+				// Box non componibile: nessun "a partire da" (e nessun prezzo).
+				if ( ! SCB_Core::is_completable( $product ) ) {
+					return '';
+				}
 				return '<span class="scb-from">A partire da</span> ' . wc_price( SCB_Core::min_price( $product ) );
 			}
 		}
@@ -82,7 +86,6 @@ class SCB_Frontend {
 
 		// Prodotti davvero disponibili per riga (pubblicati e acquistabili).
 		$available = array();
-		$blocked   = false;
 		foreach ( $cfg['rows'] as $ri => $row ) {
 			$available[ $ri ] = array();
 			foreach ( $row['items'] as $pid ) {
@@ -91,10 +94,8 @@ class SCB_Frontend {
 					$available[ $ri ][] = $it;
 				}
 			}
-			if ( count( $available[ $ri ] ) + count( $row['custom'] ) < $row['min'] ) {
-				$blocked = true;
-			}
 		}
+		$blocked = ! SCB_Core::is_completable( $product );
 
 		$js = array(
 			'mode'       => $cfg['mode'],

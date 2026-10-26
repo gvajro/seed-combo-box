@@ -148,6 +148,31 @@ class SCB_Core {
 	}
 
 	/**
+	 * La box si può comporre con i prodotti disponibili adesso? Ogni riga deve
+	 * raggiungere il suo minimo e il totale il minimo della box (almeno 1).
+	 */
+	public static function is_completable( $p ) {
+		$cfg = self::get_config( $p );
+		if ( ! $cfg['rows'] ) {
+			return false;
+		}
+		$total = 0;
+		foreach ( $cfg['rows'] as $row ) {
+			$count = count( $row['custom'] );
+			foreach ( $row['items'] as $pid ) {
+				if ( self::item_data( $pid ) ) {
+					$count++;
+				}
+			}
+			if ( $count < $row['min'] ) {
+				return false;
+			}
+			$total += $count;
+		}
+		return $total >= max( $cfg['total_min'], 1 );
+	}
+
+	/**
 	 * Prezzo minimo ("a partire da"): scatola + selezione più economica che rispetta i limiti.
 	 */
 	public static function min_price( $p ) {
