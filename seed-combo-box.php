@@ -53,8 +53,10 @@ add_action( 'plugins_loaded', function () {
 	require_once SCB_PATH . 'includes/class-scb-admin.php';
 	require_once SCB_PATH . 'includes/class-scb-frontend.php';
 	require_once SCB_PATH . 'includes/class-scb-cart.php';
+	require_once SCB_PATH . 'includes/class-scb-defaults.php';
 
 	SCB_Admin::init();
 	SCB_Frontend::init();
 	SCB_Cart::init();
+	SCB_Defaults::init();
 } );
