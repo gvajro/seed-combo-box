@@ -4,27 +4,23 @@ Plugin WooCommerce di **Seed Media Agency** per prodotti combinati (box componib
 
 ## Aggiornamenti automatici da GitHub
 
-Il plugin usa [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker): WordPress mostra l'aggiornamento in *Plugin* e in *Bacheca > Aggiornamenti*, come per un plugin normale.
+Il plugin si aggiorna da solo dal repository pubblico https://github.com/gvajro/seed-combo-box tramite [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker): WordPress mostra l'aggiornamento in *Plugin* e in *Bacheca > Aggiornamenti*, come per un plugin normale. Non serve aggiungere nulla al `wp-config.php`.
 
-1. Crea il repository su GitHub e carica questa cartella.
-2. Nel `wp-config.php` del sito cliente aggiungi:
-   ```php
-   define( 'SCB_UPDATE_REPO', 'https://github.com/UTENTE/seed-combo-box/' );
-   // Solo se il repository è privato (token fine-grained, sola lettura su "Contents"):
-   define( 'SCB_GITHUB_TOKEN', 'github_pat_xxx' );
-   ```
-3. Prima installazione: carica lo zip dalla pagina Plugin. Dopo, gli aggiornamenti arrivano da soli.
+Prima installazione: carica lo zip dalla pagina *Plugin*. Dopo, gli aggiornamenti arrivano da soli.
 
 ## Pubblicare un aggiornamento
 
-1. Modifica il codice e aumenta `Version:` nell'header di `seed-combo-box.php` (es. 1.0.1).
+1. Modifica il codice e aumenta `Version:` nell'header di `seed-combo-box.php` (e `SCB_VERSION`).
 2. Commit e push su `main`.
-3. Crea una **Release** su GitHub con tag uguale alla versione (es. `v1.0.1`).
+3. La GitHub Action *Release* crea in automatico tag e release `vX.Y.Z`.
 4. I siti vedono l'aggiornamento entro ~12 ore (o subito da *Bacheca > Aggiornamenti > Ricontrolla*).
 
-Senza una nuova versione (header + tag/release) WordPress non rileva alcun aggiornamento, anche se il codice su `main` è cambiato.
+Un push senza nuova versione non genera aggiornamenti: WordPress aggiorna solo se il numero di versione sale.
 
 ## Novità
+
+### 1.0.4
+- Aggiornamenti da GitHub senza configurazione: repository già impostato nel plugin, release create in automatico a ogni push con versione nuova.
 
 ### 1.0.3
 - Menu *Prodotti > Box componibili*: elenco dei soli prodotti combinati.
