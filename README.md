@@ -19,6 +19,10 @@ Un push senza nuova versione non genera aggiornamenti: WordPress aggiorna solo s
 
 ## Novità
 
+### 1.0.5
+- Al primo avvio vengono create in bozza le box Vesuvio e Bollicine, Lo Scrigno del Maestro e Alchimia del gusto (una volta sola).
+- Modale "Prodotto non in elenco": etichette dei campi di nuovo visibili.
+
 ### 1.0.4
 - Aggiornamenti da GitHub senza configurazione: repository già impostato nel plugin, release create in automatico a ogni push con versione nuova.
 
