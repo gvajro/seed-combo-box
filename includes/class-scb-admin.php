@@ -135,7 +135,7 @@ class SCB_Admin {
 				<label>Max <input type="number" min="0" step="1" name="scb_rows[<?php echo esc_attr( $i ); ?>][max]" value="<?php echo esc_attr( $row['max'] ); ?>" /></label>
 				<a href="#" class="scb-remove" title="Rimuovi riga">&times;</a>
 			</div>
-			<select class="wc-product-search" multiple="multiple" style="width:100%;" name="scb_rows[<?php echo esc_attr( $i ); ?>][items][]" data-placeholder="Cerca i prodotti del catalogo selezionabili in questa riga…" data-action="woocommerce_json_search_products">
+			<select class="wc-product-search" multiple="multiple" style="width:100%;" name="scb_rows[<?php echo esc_attr( $i ); ?>][items][]" data-placeholder="Cerca i prodotti del catalogo selezionabili in questa riga…" data-action="woocommerce_json_search_products" data-exclude="<?php echo esc_attr( get_the_ID() ); ?>" data-exclude_type="grouped,external">
 				<?php
 				foreach ( (array) $row['items'] as $pid ) {
 					$p = wc_get_product( $pid );
