@@ -26,6 +26,9 @@ Senza una nuova versione (header + tag/release) WordPress non rileva alcun aggio
 
 ## Novità
 
+### 1.0.3
+- Menu *Prodotti > Box componibili*: elenco dei soli prodotti combinati.
+
 ### 1.0.2
 - Se la box non è componibile con i prodotti disponibili, in negozio e in scheda non compare il prezzo "A partire da".
 
