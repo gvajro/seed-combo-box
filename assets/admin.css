@@ -23,3 +23,11 @@
 .scb-m-img { display: inline-block; vertical-align: middle; margin-right: 8px; }
 .scb-m-img img { width: 64px; height: 64px; object-fit: cover; border-radius: 3px; display: block; }
 .scb-modal-actions { margin-bottom: 0; }
+
+/* Il modale sta dentro .woocommerce_options_panel: annulla le regole di WooCommerce
+   (etichette flottanti a sinistra, padding dei paragrafi, campi al 50%). */
+#scb_data .scb-modal-box p { padding: 0; margin: 0 0 14px; }
+#scb_data .scb-modal-box label { float: none; width: auto; margin: 0 0 4px; padding: 0; display: block; }
+#scb_data .scb-modal-box input[type="text"],
+#scb_data .scb-modal-box textarea { float: none; width: 100%; margin: 0; box-sizing: border-box; }
+#scb_data .scb-modal-box .scb-m-img { margin: 6px 8px 0 0; }
