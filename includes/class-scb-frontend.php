@@ -6,12 +6,32 @@ defined( 'ABSPATH' ) || exit;
  */
 class SCB_Frontend {
 
+	/**
+	 * Prodotti già mostrati in questa richiesta: il blocco va stampato una volta sola
+	 * (Woodmart ristampa il form nello sticky add to cart).
+	 *
+	 * @var array
+	 */
+	private static $rendered = array();
+
 	public static function init() {
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'register_assets' ) );
 		add_action( 'woocommerce_before_add_to_cart_button', array( __CLASS__, 'render' ), 5 );
 		add_filter( 'woocommerce_get_price_html', array( __CLASS__, 'price_html' ), 20, 2 );
 		add_filter( 'woocommerce_product_add_to_cart_text', array( __CLASS__, 'loop_text' ), 20, 2 );
 		add_filter( 'woocommerce_product_add_to_cart_url', array( __CLASS__, 'loop_url' ), 20, 2 );
 		add_filter( 'woocommerce_product_supports', array( __CLASS__, 'supports' ), 20, 3 );
+	}
+
+	public static function register_assets() {
+		wp_register_style( 'scb-front', SCB_URL . 'assets/front.css', array(), SCB_VERSION );
+		wp_register_script( 'scb-front', SCB_URL . 'assets/front.js', array(), SCB_VERSION, true );
+
+		// Quick view di Woodmart: la scheda arriva via ajax, gli asset devono essere già nella pagina.
+		if ( function_exists( 'woodmart_get_opt' ) && woodmart_get_opt( 'quick_view' ) ) {
+			wp_enqueue_style( 'scb-front' );
+			wp_enqueue_script( 'scb-front' );
+		}
 	}
 
 	public static function price_html( $html, $product ) {
@@ -52,12 +72,29 @@ class SCB_Frontend {
 			return;
 		}
 		$cfg = SCB_Core::get_config( $product );
-		if ( ! $cfg['rows'] ) {
+		if ( ! $cfg['rows'] || isset( self::$rendered[ $product->get_id() ] ) ) {
 			return;
 		}
+		self::$rendered[ $product->get_id() ] = true;
 
-		wp_enqueue_style( 'scb-front', SCB_URL . 'assets/front.css', array(), SCB_VERSION );
-		wp_enqueue_script( 'scb-front', SCB_URL . 'assets/front.js', array(), SCB_VERSION, true );
+		wp_enqueue_style( 'scb-front' );
+		wp_enqueue_script( 'scb-front' );
+
+		// Prodotti davvero disponibili per riga (pubblicati e acquistabili).
+		$available = array();
+		$blocked   = false;
+		foreach ( $cfg['rows'] as $ri => $row ) {
+			$available[ $ri ] = array();
+			foreach ( $row['items'] as $pid ) {
+				$it = SCB_Core::item_data( $pid );
+				if ( $it ) {
+					$available[ $ri ][] = $it;
+				}
+			}
+			if ( count( $available[ $ri ] ) + count( $row['custom'] ) < $row['min'] ) {
+				$blocked = true;
+			}
+		}
 
 		$js = array(
 			'mode'       => $cfg['mode'],
@@ -74,8 +111,13 @@ class SCB_Frontend {
 			),
 		);
 
-		echo '<div class="scb" data-scb="' . esc_attr( wp_json_encode( $js ) ) . '">';
+		$uid = 'scb-' . $product->get_id();
+
+		echo '<div class="scb' . ( $blocked ? ' is-blocked' : '' ) . '" id="' . esc_attr( $uid ) . '" data-scb="' . esc_attr( wp_json_encode( $js ) ) . '">';
 		echo '<h3 class="scb-title">' . esc_html( $cfg['title'] ) . '</h3>';
+		if ( $blocked ) {
+			echo '<p class="scb-unavailable">Questa box al momento non si può comporre: alcuni prodotti non sono disponibili.</p>';
+		}
 		echo '<div class="scb-summary"><span class="scb-counter"></span>';
 		if ( 'sum' === $cfg['mode'] ) {
 			echo '<strong class="scb-total"></strong>';
@@ -84,30 +126,41 @@ class SCB_Frontend {
 		echo '<div class="scb-accordion">';
 
 		foreach ( $cfg['rows'] as $ri => $row ) {
-			echo '<section class="scb-row' . ( 0 === $ri ? ' is-open' : '' ) . '" data-min="' . esc_attr( $row['min'] ) . '" data-max="' . esc_attr( $row['max'] ) . '" data-title="' . esc_attr( $row['title'] ) . '">';
-			echo '<button type="button" class="scb-row-head">';
-			echo '<span class="scb-row-num">' . esc_html( $ri + 1 ) . '</span>';
-			echo '<span class="scb-row-label"><span class="scb-row-title">' . esc_html( $row['title'] ) . '</span><span class="scb-row-rule">' . esc_html( self::rule_text( $row['min'], $row['max'] ) ) . '</span></span>';
-			echo '<span class="scb-row-status">0 / ' . esc_html( $row['max'] ) . '</span>';
-			echo '</button>';
-			echo '<div class="scb-row-body"><div class="scb-grid">';
+			$count = count( $available[ $ri ] ) + count( $row['custom'] );
+			$max   = min( $row['max'], $count ); // con prodotti non disponibili la riga si completa prima
+			$head  = $uid . '-h' . $ri;
+			$body  = $uid . '-b' . $ri;
 
-			foreach ( $row['items'] as $pid ) {
-				$it = SCB_Core::item_data( $pid );
-				if ( $it ) {
+			echo '<section class="scb-row' . ( 0 === $ri ? ' is-open' : '' ) . '" data-min="' . esc_attr( $row['min'] ) . '" data-max="' . esc_attr( $max ) . '" data-title="' . esc_attr( $row['title'] ) . '">';
+			echo '<button type="button" class="scb-row-head" id="' . esc_attr( $head ) . '" aria-controls="' . esc_attr( $body ) . '" aria-expanded="' . ( 0 === $ri ? 'true' : 'false' ) . '">';
+			echo '<span class="scb-row-num" aria-hidden="true">' . esc_html( $ri + 1 ) . '</span>';
+			echo '<span class="scb-row-label"><span class="scb-row-title">' . esc_html( $row['title'] ) . '</span><span class="scb-row-rule">' . esc_html( self::rule_text( $row['min'], max( $row['min'], $max ) ) ) . '</span></span>';
+			echo '<span class="scb-row-status">0 / ' . esc_html( $max ) . '</span>';
+			echo '</button>';
+			echo '<div class="scb-row-body" id="' . esc_attr( $body ) . '" role="region" aria-labelledby="' . esc_attr( $head ) . '">';
+
+			if ( ! $count ) {
+				echo '<p class="scb-empty">Nessun prodotto disponibile in questa sezione.</p>';
+			} else {
+				if ( $count < $row['min'] ) {
+					echo '<p class="scb-empty">In questa sezione ' . esc_html( 1 === $count ? 'è disponibile solo 1 prodotto' : 'sono disponibili solo ' . $count . ' prodotti' ) . ' su ' . esc_html( $row['min'] ) . ' richiesti.</p>';
+				}
+				echo '<div class="scb-grid">';
+				foreach ( $available[ $ri ] as $it ) {
 					self::product_item( $ri, $it, $cfg['show_prices'] );
 				}
-			}
-			foreach ( $row['custom'] as $cu ) {
-				self::custom_item( $ri, $cu, $cfg['show_prices'] );
+				foreach ( $row['custom'] as $cu ) {
+					self::custom_item( $ri, $cu, $cfg['show_prices'] );
+				}
+				echo '</div>';
 			}
 
-			echo '</div><button type="button" class="scb-next button">Avanti</button></div>';
+			echo '<button type="button" class="scb-next button">Avanti</button></div>';
 			echo '</section>';
 		}
 
 		echo '</div>';
-		echo '<p class="scb-msg" role="alert" aria-live="polite"></p>';
+		echo '<p class="scb-msg" role="status" aria-live="polite"></p>';
 		echo '</div>';
 	}
 

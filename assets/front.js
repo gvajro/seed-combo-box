@@ -2,7 +2,13 @@
 	'use strict';
 
 	function init(root) {
+		if (root.getAttribute('data-scb-ready')) {
+			return;
+		}
+		root.setAttribute('data-scb-ready', '1');
+
 		var cfg = JSON.parse(root.getAttribute('data-scb'));
+		var blocked = root.classList.contains('is-blocked');
 		var rows = Array.prototype.slice.call(root.querySelectorAll('.scb-row'));
 		var form = root.closest('form');
 		var btn = form ? form.querySelector('.single_add_to_cart_button') : null;
@@ -38,7 +44,7 @@
 			}
 		}
 
-		function openRow(i) {
+		function openRow(i, focus) {
 			if (!rows[i]) {
 				return;
 			}
@@ -49,6 +55,10 @@
 			var top = rows[i].getBoundingClientRect().top;
 			if (top < 0 || top > window.innerHeight * 0.5) {
 				rows[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+			// La riga di prima si chiude: chi usa la tastiera non deve perdere il punto.
+			if (focus) {
+				rows[i].querySelector('.scb-row-head').focus({ preventScroll: true });
 			}
 		}
 
@@ -100,7 +110,7 @@
 			});
 
 			var need = cfg.totalMin || 1;
-			if (total < need) {
+			if (total < need || blocked) {
 				valid = false;
 			}
 
@@ -120,11 +130,16 @@
 			}
 
 			var hint = '';
-			if (!valid) {
+			if (blocked) {
+				hint = '';
+			} else if (!valid) {
 				hint = firstBad ? 'Completa la sezione «' + firstBad.getAttribute('data-title') + '».' : 'Scegli almeno ' + need + (need === 1 ? ' prodotto.' : ' prodotti.');
 			}
 			if (msg) {
 				msg.textContent = hint;
+				if (valid) {
+					msg.classList.remove('is-error');
+				}
 			}
 			if (btn) {
 				btn.disabled = !valid;
@@ -150,7 +165,7 @@
 				var idx = rows.indexOf(row);
 				if (row._count >= +row.getAttribute('data-max') && idx < rows.length - 1) {
 					window.setTimeout(function () {
-						openRow(idx + 1);
+						openRow(idx + 1, true);
 					}, 250);
 				}
 			}
@@ -164,7 +179,25 @@
 			}
 			var next = e.target.closest('.scb-next');
 			if (next) {
-				openRow(rows.indexOf(next.closest('.scb-row')) + 1);
+				openRow(rows.indexOf(next.closest('.scb-row')) + 1, true);
+			}
+		});
+
+		function showProblem() {
+			if (msg) {
+				msg.classList.add('is-error');
+			}
+			if (firstBad) {
+				openRow(rows.indexOf(firstBad), true);
+			}
+		}
+
+		// Richiesta dallo sticky add to cart: aggiunge se la box è completa, altrimenti mostra cosa manca.
+		root.addEventListener('scb:submit', function () {
+			if (update() && btn) {
+				btn.click();
+			} else {
+				showProblem();
 			}
 		});
 
@@ -173,9 +206,7 @@
 				if (!update()) {
 					e.preventDefault();
 					e.stopImmediatePropagation();
-					if (firstBad) {
-						openRow(rows.indexOf(firstBad));
-					}
+					showProblem();
 				}
 			}, true);
 		}
@@ -189,9 +220,51 @@
 		Array.prototype.forEach.call(document.querySelectorAll('.scb'), init);
 	}
 
+	// Quick view e contenuti caricati via ajax: inizializza i blocchi appena compaiono.
+	function watch() {
+		if (!window.MutationObserver || !document.body) {
+			return;
+		}
+		var queued = false;
+		new MutationObserver(function () {
+			if (queued) {
+				return;
+			}
+			queued = true;
+			window.requestAnimationFrame(function () {
+				queued = false;
+				boot();
+			});
+		}).observe(document.body, { childList: true, subtree: true });
+	}
+
+	// Sticky add to cart (Woodmart): il suo form non contiene la box, quindi porta al blocco.
+	document.addEventListener('click', function (e) {
+		var btn = e.target.closest ? e.target.closest('.single_add_to_cart_button') : null;
+		if (!btn) {
+			return;
+		}
+		var form = btn.closest('form');
+		if (!form || form.querySelector('.scb')) {
+			return;
+		}
+		var box = document.getElementById('scb-' + btn.value);
+		if (!box) {
+			return;
+		}
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		box.dispatchEvent(new CustomEvent('scb:submit'));
+	}, true);
+
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', boot);
+		document.addEventListener('DOMContentLoaded', function () {
+			boot();
+			watch();
+		});
 	} else {
 		boot();
+		watch();
 	}
 })();
