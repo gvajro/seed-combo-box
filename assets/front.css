@@ -51,6 +51,7 @@
 .scb-var { display: block; width: calc(100% - 20px); margin: 0 10px 10px; padding: 6px 8px; font-size: .85em; }
 
 .scb-next { margin-top: 14px; }
+.scb-row-note { margin: 0 0 12px; font-size: .88em; opacity: .8; }
 .scb-row:last-child .scb-next { display: none; }
 .scb-msg { margin: 10px 0 0; font-size: .88em; opacity: .8; min-height: 1.2em; }
 .scb-msg.is-error { color: #b32d2e; opacity: 1; }

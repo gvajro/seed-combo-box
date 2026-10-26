@@ -62,6 +62,20 @@
 			}
 		}
 
+		function setNote(row, text) {
+			var el = row.querySelector('.scb-row-note');
+			if (!el && text) {
+				el = document.createElement('p');
+				el.className = 'scb-row-note';
+				var body = row.querySelector('.scb-row-body');
+				body.insertBefore(el, body.firstChild);
+			}
+			if (el) {
+				el.textContent = text;
+				el.hidden = !text;
+			}
+		}
+
 		function update() {
 			var total = 0;
 			var sum = cfg.boxCost;
@@ -83,7 +97,9 @@
 				var min = +row.getAttribute('data-min');
 				var max = +row.getAttribute('data-max');
 				var c = row._count;
-				var capped = c >= max || capTotal;
+				// Righe "scegli 1": un clic su un altro prodotto sostituisce la scelta.
+				var swap = max === 1 && c === 1;
+				var capped = !swap && (c >= max || capTotal);
 
 				Array.prototype.forEach.call(row.querySelectorAll('.scb-check'), function (chk) {
 					var item = chk.closest('.scb-item');
@@ -93,6 +109,14 @@
 					item.classList.toggle('is-checked', chk.checked);
 					item.classList.toggle('is-capped', !chk.checked && capped);
 				});
+
+				var note = '';
+				if (!swap && max > 1 && c >= max) {
+					note = 'Hai scelto il massimo per questa sezione: togli un prodotto per sceglierne un altro.';
+				} else if (!swap && capTotal && c < max) {
+					note = 'Hai raggiunto il massimo di ' + cfg.totalMax + ' prodotti per la box: togline uno per sceglierne un altro.';
+				}
+				setNote(row, note);
 
 				row.querySelector('.scb-row-status').textContent = c + ' / ' + max;
 				var ok = c >= min;
@@ -154,20 +178,34 @@
 			if (!item) {
 				return;
 			}
+			var row = item.closest('.scb-row');
+			var chk = item.querySelector('.scb-check');
+			var before = row._count;
+			var max = +row.getAttribute('data-max');
+
 			if (t.classList.contains('scb-var')) {
 				syncItem(item);
+				// Scegliere la variante seleziona anche il prodotto.
+				if (!chk.checked && !chk.disabled) {
+					chk.checked = true;
+				}
+			}
+
+			if (chk.checked && max === 1) {
+				Array.prototype.forEach.call(row.querySelectorAll('.scb-check:checked'), function (other) {
+					if (other !== chk) {
+						other.checked = false;
+					}
+				});
 			}
 			update();
 
-			// Raggiunto il massimo della riga: passa in automatico alla successiva.
-			if (t.classList.contains('scb-check') && t.checked) {
-				var row = t.closest('.scb-row');
-				var idx = rows.indexOf(row);
-				if (row._count >= +row.getAttribute('data-max') && idx < rows.length - 1) {
-					window.setTimeout(function () {
-						openRow(idx + 1, true);
-					}, 250);
-				}
+			// Riga appena completata (non un cambio di scelta): passa in automatico alla successiva.
+			var idx = rows.indexOf(row);
+			if (chk.checked && before < max && row._count >= max && idx < rows.length - 1) {
+				window.setTimeout(function () {
+					openRow(idx + 1, true);
+				}, 250);
 			}
 		});
 
