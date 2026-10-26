@@ -19,6 +19,10 @@ Un push senza nuova versione non genera aggiornamenti: WordPress aggiorna solo s
 
 ## Novità
 
+### 1.0.6
+- In scheda prodotto compare il costo della scatola.
+- Box predefinite con descrizione breve e descrizione (aggiunte anche a quelle già create, se vuote).
+
 ### 1.0.5
 - Al primo avvio vengono create in bozza le box Vesuvio e Bollicine, Lo Scrigno del Maestro e Alchimia del gusto (una volta sola).
 - Modale "Prodotto non in elenco": etichette dei campi di nuovo visibili.

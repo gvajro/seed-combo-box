@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Seed Combo Box
  * Description:       Prodotti combinati per WooCommerce: il cliente compone la box scegliendo i prodotti riga per riga (accordion). Prezzo = costo scatola + prodotti scelti, oppure prezzo fisso.
- * Version:           1.0.5
+ * Version:           1.0.6
  * Author:            Seed Media Agency
  * Requires at least: 6.0
  * Requires PHP:      7.4
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'SCB_VERSION', '1.0.5' );
+define( 'SCB_VERSION', '1.0.6' );
 define( 'SCB_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SCB_URL', plugin_dir_url( __FILE__ ) );
 
