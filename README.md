@@ -19,6 +19,10 @@ Un push senza nuova versione non genera aggiornamenti: WordPress aggiorna solo s
 
 ## Novità
 
+### 1.0.7
+- Righe "scegli 1": un clic su un altro prodotto cambia la scelta.
+- Nota quando si raggiunge il massimo; la variante scelta seleziona anche il prodotto.
+
 ### 1.0.6
 - In scheda prodotto compare il costo della scatola.
 - Box predefinite con descrizione breve e descrizione (aggiunte anche a quelle già create, se vuote).
