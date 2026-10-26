@@ -23,3 +23,11 @@ Il plugin usa [Plugin Update Checker](https://github.com/YahnisElsts/plugin-upda
 4. I siti vedono l'aggiornamento entro ~12 ore (o subito da *Bacheca > Aggiornamenti > Ricontrolla*).
 
 Senza una nuova versione (header + tag/release) WordPress non rileva alcun aggiornamento, anche se il codice su `main` è cambiato.
+
+## Novità
+
+### 1.0.1
+- Validazione lato server più rigida: la box entra nel carrello solo con una selezione valida, da qualsiasi percorso.
+- Righe senza prodotti disponibili: messaggio dedicato; se una riga non può raggiungere il minimo la box viene segnalata come non componibile.
+- Woodmart: add to cart ajax, sticky add to cart (porta al blocco) e quick view.
+- Accessibilità dell'accordion (tastiera, aria, focus).
