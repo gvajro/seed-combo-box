@@ -26,6 +26,9 @@ Senza una nuova versione (header + tag/release) WordPress non rileva alcun aggio
 
 ## Novità
 
+### 1.0.2
+- Se la box non è componibile con i prodotti disponibili, in negozio e in scheda non compare il prezzo "A partire da".
+
 ### 1.0.1
 - Validazione lato server più rigida: la box entra nel carrello solo con una selezione valida, da qualsiasi percorso.
 - Righe senza prodotti disponibili: messaggio dedicato; se una riga non può raggiungere il minimo la box viene segnalata come non componibile.
