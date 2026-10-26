@@ -11,6 +11,38 @@ class SCB_Admin {
 		add_action( 'woocommerce_product_data_panels', array( __CLASS__, 'panel' ) );
 		add_action( 'woocommerce_admin_process_product_object', array( __CLASS__, 'save' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'filter_list' ) );
+		add_filter( 'submenu_file', array( __CLASS__, 'current_menu' ) );
+	}
+
+	/**
+	 * Voce "Box componibili" sotto Prodotti: elenco prodotti filtrato sulle box.
+	 */
+	public static function menu() {
+		add_submenu_page( 'edit.php?post_type=product', 'Box componibili', 'Box componibili', 'edit_products', 'edit.php?post_type=product&scb_combo=1' );
+	}
+
+	private static function is_combo_list() {
+		global $pagenow;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- solo un filtro di visualizzazione.
+		return is_admin() && 'edit.php' === $pagenow && ! empty( $_GET['scb_combo'] ) && 'product' === ( $_GET['post_type'] ?? '' );
+	}
+
+	public static function filter_list( $query ) {
+		if ( ! $query->is_main_query() || ! self::is_combo_list() ) {
+			return;
+		}
+		$meta   = (array) $query->get( 'meta_query' );
+		$meta[] = array(
+			'key'   => '_scb_enabled',
+			'value' => 'yes',
+		);
+		$query->set( 'meta_query', $meta );
+	}
+
+	public static function current_menu( $submenu_file ) {
+		return self::is_combo_list() ? 'edit.php?post_type=product&scb_combo=1' : $submenu_file;
 	}
 
 	public static function assets( $hook ) {
