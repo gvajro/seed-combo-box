@@ -15,9 +15,14 @@ class SCB_Cart {
 		add_action( 'woocommerce_checkout_create_order_line_item', array( __CLASS__, 'order_item' ), 10, 3 );
 	}
 
+	/**
+	 * Selezione inviata con il form prodotto. $_REQUEST e non solo $_POST: l'add to cart
+	 * ajax dei temi (es. Woodmart) può inviare i campi del form in GET.
+	 * Nessun nonce: è l'add to cart pubblico di WooCommerce; i valori sono validati in SCB_Core::parse_selection().
+	 */
 	private static function posted() {
-		// phpcs:ignore WordPress.Security.NonceVerification
-		return isset( $_POST['scb'] ) && is_array( $_POST['scb'] ) ? $_POST['scb'] : array();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		return isset( $_REQUEST['scb'] ) && is_array( $_REQUEST['scb'] ) ? $_REQUEST['scb'] : array();
 	}
 
 	public static function validate( $passed, $product_id ) {
@@ -38,7 +43,9 @@ class SCB_Cart {
 		}
 		$res = SCB_Core::parse_selection( $product_id, self::posted() );
 		if ( is_wp_error( $res ) ) {
-			return $data;
+			// Aggiunte al carrello che saltano la validazione (altri plugin, "Ordina di nuovo"):
+			// senza una selezione valida la box non entra. WC_Cart::add_to_cart() mostra il messaggio.
+			throw new Exception( esc_html( $res->get_error_message() ) );
 		}
 		$data['scb']     = $res;
 		$data['scb_key'] = md5( wp_json_encode( $res ) ); // righe separate per selezioni diverse

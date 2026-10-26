@@ -31,7 +31,8 @@ class SCB_Core {
 			}
 			$id = sanitize_key( $c['id'] ?? '' );
 			if ( '' === $id ) {
-				$id = 'c' . strtolower( wp_generate_password( 8, false, false ) );
+				// Stabile: lo stesso prodotto deve avere lo stesso id a ogni lettura.
+				$id = 'c' . substr( md5( $title ), 0, 8 );
 			}
 			$raw   = trim( (string) ( $c['price'] ?? '' ) );
 			$price = '' === $raw ? '' : ( is_numeric( $raw ) ? (float) $raw : (float) wc_format_decimal( $raw ) );
@@ -161,11 +162,11 @@ class SCB_Core {
 		foreach ( $cfg['rows'] as $row ) {
 			$prices = array();
 			foreach ( $row['items'] as $pid ) {
-				$prod = wc_get_product( $pid );
-				if ( ! $prod || 'publish' !== $prod->get_status() ) {
+				$it = self::item_data( $pid );
+				if ( ! $it ) {
 					continue;
 				}
-				$prices[] = $prod->is_type( 'variable' ) ? (float) $prod->get_variation_price( 'min', false ) : (float) $prod->get_price();
+				$prices[] = $it['variations'] ? min( wp_list_pluck( $it['variations'], 'price' ) ) : $it['price'];
 			}
 			foreach ( $row['custom'] as $cu ) {
 				$prices[] = (float) $cu['price'];
@@ -202,6 +203,9 @@ class SCB_Core {
 			$count = 0;
 
 			foreach ( $vals as $val ) {
+				if ( ! is_scalar( $val ) ) {
+					return new WP_Error( 'scb', 'Selezione non valida. Riprova.' );
+				}
 				$parts = explode( ':', sanitize_text_field( (string) $val ) );
 
 				// Prodotto personalizzato (non in catalogo).
@@ -280,23 +284,30 @@ class SCB_Core {
 			}
 
 			if ( $count < $row['min'] ) {
-				return new WP_Error( 'scb', 'Nella sezione «' . $row['title'] . '» scegli almeno ' . $row['min'] . ( 1 === $row['min'] ? ' prodotto.' : ' prodotti.' ) );
+				return new WP_Error( 'scb', 'Nella sezione «' . $row['title'] . '» scegli almeno ' . self::pieces( $row['min'] ) . '.' );
 			}
 			if ( $count > $row['max'] ) {
-				return new WP_Error( 'scb', 'Nella sezione «' . $row['title'] . '» puoi scegliere al massimo ' . $row['max'] . ' prodotti.' );
+				return new WP_Error( 'scb', 'Nella sezione «' . $row['title'] . '» puoi scegliere al massimo ' . self::pieces( $row['max'] ) . '.' );
 			}
 		}
 
 		$total = count( $components );
 		$min   = $cfg['total_min'] ? $cfg['total_min'] : 1;
 		if ( $total < $min ) {
-			return new WP_Error( 'scb', 'Scegli almeno ' . $min . ( 1 === $min ? ' prodotto.' : ' prodotti.' ) );
+			return new WP_Error( 'scb', 'Scegli almeno ' . self::pieces( $min ) . '.' );
 		}
 		if ( $cfg['total_max'] && $total > $cfg['total_max'] ) {
-			return new WP_Error( 'scb', 'Puoi scegliere al massimo ' . $cfg['total_max'] . ' prodotti in totale.' );
+			return new WP_Error( 'scb', 'Puoi scegliere al massimo ' . self::pieces( $cfg['total_max'] ) . ' in totale.' );
 		}
 
 		return $components;
+	}
+
+	/**
+	 * "1 prodotto" / "N prodotti".
+	 */
+	public static function pieces( $n ) {
+		return $n . ( 1 === (int) $n ? ' prodotto' : ' prodotti' );
 	}
 
 	/**
