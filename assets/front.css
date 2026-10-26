@@ -9,6 +9,7 @@
 .scb-title { margin: 0 0 10px; font-size: 1.15em; }
 .scb-summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: .95em; }
 .scb-total { color: var(--scb-accent); font-size: 1.1em; }
+.scb-box-cost { margin: 0 0 10px; font-size: .92em; }
 
 .scb-accordion { border: 1px solid var(--scb-border); border-radius: var(--scb-radius); overflow: hidden; }
 .scb-row + .scb-row { border-top: 1px solid var(--scb-border); }

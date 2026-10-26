@@ -119,6 +119,9 @@ class SCB_Frontend {
 		if ( $blocked ) {
 			echo '<p class="scb-unavailable">Questa box al momento non si può comporre: alcuni prodotti non sono disponibili.</p>';
 		}
+		if ( 'sum' === $cfg['mode'] && $cfg['box_cost'] > 0 ) {
+			echo '<p class="scb-box-cost">Costo scatola: <strong>' . esc_html( self::plain_price( $cfg['box_cost'] ) ) . '</strong>, più i prodotti scelti.</p>';
+		}
 		echo '<div class="scb-summary"><span class="scb-counter"></span>';
 		if ( 'sum' === $cfg['mode'] ) {
 			echo '<strong class="scb-total"></strong>';
