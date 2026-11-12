@@ -19,6 +19,11 @@ Un push senza nuova versione non genera aggiornamenti: WordPress aggiorna solo s
 
 ## Novità
 
+### 1.0.8
+- Scheda della box più chiara: card con spunta e foto su fondo bianco, barra di avanzamento, il prodotto scelto compare nell'intestazione di ogni sezione.
+- Riepilogo "La tua box" con scatola, prodotti scelti e totale.
+- Pulsante "Sezione successiva" al posto di "Avanti".
+
 ### 1.0.7
 - Righe "scegli 1": un clic su un altro prodotto cambia la scelta.
 - Nota quando si raggiunge il massimo; la variante scelta seleziona anche il prodotto.

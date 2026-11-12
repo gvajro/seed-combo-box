@@ -124,3 +124,6 @@
 	.scb-item, .scb-progress-bar, .scb-row-chev { transition: none; }
 	.scb-row.is-open > .scb-row-body { animation: none; }
 }
+/* Il tema rende maiuscoli e tratteggiati i pulsanti: nell'intestazione delle sezioni no */
+.scb .scb-row-head { text-transform: none; letter-spacing: 0; outline: none; box-shadow: none; }
+.scb .scb-row-head:focus-visible { outline: 2px solid var(--scb-accent); outline-offset: -2px; }
