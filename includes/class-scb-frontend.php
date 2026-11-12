@@ -127,6 +127,7 @@ class SCB_Frontend {
 			echo '<strong class="scb-total"></strong>';
 		}
 		echo '</div>';
+		echo '<div class="scb-progress" aria-hidden="true"><span class="scb-progress-bar"></span></div>';
 		echo '<div class="scb-accordion">';
 
 		foreach ( $cfg['rows'] as $ri => $row ) {
@@ -138,8 +139,8 @@ class SCB_Frontend {
 			echo '<section class="scb-row' . ( 0 === $ri ? ' is-open' : '' ) . '" data-min="' . esc_attr( $row['min'] ) . '" data-max="' . esc_attr( $max ) . '" data-title="' . esc_attr( $row['title'] ) . '">';
 			echo '<button type="button" class="scb-row-head" id="' . esc_attr( $head ) . '" aria-controls="' . esc_attr( $body ) . '" aria-expanded="' . ( 0 === $ri ? 'true' : 'false' ) . '">';
 			echo '<span class="scb-row-num" aria-hidden="true">' . esc_html( $ri + 1 ) . '</span>';
-			echo '<span class="scb-row-label"><span class="scb-row-title">' . esc_html( $row['title'] ) . '</span><span class="scb-row-rule">' . esc_html( self::rule_text( $row['min'], max( $row['min'], $max ) ) ) . '</span></span>';
-			echo '<span class="scb-row-status">0 / ' . esc_html( $max ) . '</span>';
+			echo '<span class="scb-row-label"><span class="scb-row-title">' . esc_html( $row['title'] ) . '</span><span class="scb-row-rule">' . esc_html( self::rule_text( $row['min'], max( $row['min'], $max ) ) ) . '</span><span class="scb-row-pick"></span></span>';
+			echo '<span class="scb-row-status">0 / ' . esc_html( $max ) . '</span><span class="scb-row-chev" aria-hidden="true"></span>';
 			echo '</button>';
 			echo '<div class="scb-row-body" id="' . esc_attr( $body ) . '" role="region" aria-labelledby="' . esc_attr( $head ) . '">';
 
@@ -159,11 +160,14 @@ class SCB_Frontend {
 				echo '</div>';
 			}
 
-			echo '<button type="button" class="scb-next button">Avanti</button></div>';
+			echo '<button type="button" class="scb-next">Sezione successiva <span aria-hidden="true">&rarr;</span></button></div>';
 			echo '</section>';
 		}
 
 		echo '</div>';
+		if ( 'sum' === $cfg['mode'] ) {
+			echo '<div class="scb-recap" hidden><p class="scb-recap-title">La tua box</p><ul class="scb-recap-list"></ul><p class="scb-recap-total"><span>Totale</span><strong></strong></p></div>';
+		}
 		echo '<p class="scb-msg" role="status" aria-live="polite"></p>';
 		echo '</div>';
 	}
@@ -181,7 +185,7 @@ class SCB_Frontend {
 		echo '<div class="scb-item" data-pid="' . esc_attr( $it['id'] ) . '" data-price="' . esc_attr( $price ) . '">';
 		echo '<label class="scb-item-main">';
 		echo '<input type="checkbox" class="scb-check" name="scb[' . esc_attr( $ri ) . '][]" value="' . esc_attr( $value ) . '" />';
-		echo '<span class="scb-thumb">' . $it['image'] . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput
+		echo '<span class="scb-tick" aria-hidden="true"></span><span class="scb-thumb">' . $it['image'] . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		echo '<span class="scb-info"><span class="scb-name">' . esc_html( $it['name'] ) . '</span>';
 		if ( $show_prices ) {
 			echo '<span class="scb-price">' . esc_html( self::plain_price( $price ) ) . '</span>';
@@ -206,7 +210,7 @@ class SCB_Frontend {
 		echo '<div class="scb-item scb-item-custom" data-price="' . esc_attr( $price ) . '">';
 		echo '<label class="scb-item-main">';
 		echo '<input type="checkbox" class="scb-check" name="scb[' . esc_attr( $ri ) . '][]" value="c:' . esc_attr( $cu['id'] ) . '" />';
-		echo '<span class="scb-thumb">' . $img . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput
+		echo '<span class="scb-tick" aria-hidden="true"></span><span class="scb-thumb">' . $img . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		echo '<span class="scb-info"><span class="scb-name">' . esc_html( $cu['title'] ) . '</span>';
 		if ( '' !== $cu['desc'] ) {
 			echo '<span class="scb-desc">' . esc_html( $cu['desc'] ) . '</span>';

@@ -15,6 +15,8 @@
 		var msg = root.querySelector('.scb-msg');
 		var totalEl = root.querySelector('.scb-total');
 		var counterEl = root.querySelector('.scb-counter');
+		var barEl = root.querySelector('.scb-progress-bar');
+		var recap = root.querySelector('.scb-recap');
 		var firstBad = null;
 
 		function fmt(n) {
@@ -76,17 +78,34 @@
 			}
 		}
 
+		function nameOf(item) {
+			var n = item.querySelector('.scb-name');
+			var text = n ? n.textContent : '';
+			var sel = item.querySelector('.scb-var');
+			if (sel && sel.options.length) {
+				text += ' – ' + sel.options[sel.selectedIndex].text.split(' – ')[0];
+			}
+			return text;
+		}
+
 		function update() {
 			var total = 0;
 			var sum = cfg.boxCost;
+			var picks = [];
+			var done = 0;
 			firstBad = null;
 
 			rows.forEach(function (row) {
 				var checked = row.querySelectorAll('.scb-check:checked');
 				row._count = checked.length;
 				total += checked.length;
+				row._names = [];
 				Array.prototype.forEach.call(checked, function (chk) {
-					sum += priceOf(chk.closest('.scb-item'));
+					var item = chk.closest('.scb-item');
+					var p = priceOf(item);
+					sum += p;
+					row._names.push(nameOf(item));
+					picks.push([nameOf(item), p]);
 				});
 			});
 
@@ -119,8 +138,15 @@
 				setNote(row, note);
 
 				row.querySelector('.scb-row-status').textContent = c + ' / ' + max;
+				var pick = row.querySelector('.scb-row-pick');
+				if (pick) {
+					pick.textContent = row._names.join(', ');
+				}
 				var ok = c >= min;
 				row.classList.toggle('is-done', c > 0 && ok);
+				if (c > 0 && ok) {
+					done++;
+				}
 				var next = row.querySelector('.scb-next');
 				if (next) {
 					next.disabled = !ok;
@@ -151,6 +177,34 @@
 			}
 			if (totalEl) {
 				totalEl.textContent = 'Totale box: ' + fmt(sum);
+			}
+			if (barEl) {
+				barEl.style.width = (rows.length ? Math.round(done / rows.length * 100) : 0) + '%';
+			}
+			if (recap) {
+				recap.hidden = !picks.length;
+				var list = recap.querySelector('.scb-recap-list');
+				list.textContent = '';
+				var line = function (label, price, cls) {
+					var li = document.createElement('li');
+					if (cls) {
+						li.className = cls;
+					}
+					var a = document.createElement('span');
+					a.textContent = label;
+					var b = document.createElement('span');
+					b.textContent = fmt(price);
+					li.appendChild(a);
+					li.appendChild(b);
+					list.appendChild(li);
+				};
+				if (cfg.boxCost > 0) {
+					line('Scatola', cfg.boxCost, 'is-box');
+				}
+				picks.forEach(function (p) {
+					line(p[0], p[1]);
+				});
+				recap.querySelector('.scb-recap-total strong').textContent = fmt(sum);
 			}
 
 			var hint = '';
