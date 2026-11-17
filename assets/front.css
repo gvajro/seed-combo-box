@@ -120,6 +120,11 @@
 	.scb-row-body { padding: 2px 12px 12px; }
 	.scb-row-status { display: none; }
 }
+/* Desktop: la foto segue lo scorrimento finché si scelgono i prodotti */
+@media (min-width: 1200px) {
+	.scb-combo-page .product-image-summary-inner > .product-images { position: sticky; top: 110px; align-self: start; }
+}
+
 /* Tablet: foto sopra e scelta sotto, come da telefono (il tema affianca le colonne fino a 769px) */
 @media (max-width: 1199px) {
 	.scb-combo-page .product-image-summary-inner > .product-images,

@@ -19,6 +19,9 @@ Un push senza nuova versione non genera aggiornamenti: WordPress aggiorna solo s
 
 ## Novità
 
+### 1.0.10
+- Da computer la foto della box resta ferma sotto il menu mentre si scorre la scelta dei prodotti.
+
 ### 1.0.9
 - Da tablet la scheda della box si vede come da telefono: foto sopra e scelta dei prodotti sotto, senza spazio bianco sotto la foto.
 
