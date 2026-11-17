@@ -19,6 +19,9 @@ Un push senza nuova versione non genera aggiornamenti: WordPress aggiorna solo s
 
 ## Novità
 
+### 1.0.9
+- Da tablet la scheda della box si vede come da telefono: foto sopra e scelta dei prodotti sotto, senza spazio bianco sotto la foto.
+
 ### 1.0.8
 - Scheda della box più chiara: card con spunta e foto su fondo bianco, barra di avanzamento, il prodotto scelto compare nell'intestazione di ogni sezione.
 - Riepilogo "La tua box" con scatola, prodotti scelti e totale.

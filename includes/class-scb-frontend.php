@@ -21,6 +21,15 @@ class SCB_Frontend {
 		add_filter( 'woocommerce_product_add_to_cart_text', array( __CLASS__, 'loop_text' ), 20, 2 );
 		add_filter( 'woocommerce_product_add_to_cart_url', array( __CLASS__, 'loop_url' ), 20, 2 );
 		add_filter( 'woocommerce_product_supports', array( __CLASS__, 'supports' ), 20, 3 );
+		add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
+	}
+
+	/** Classe sulla scheda di una box: serve al CSS per il layout da tablet. */
+	public static function body_class( $classes ) {
+		if ( is_product() && SCB_Core::is_combo( wc_get_product( get_queried_object_id() ) ) ) {
+			$classes[] = 'scb-combo-page';
+		}
+		return $classes;
 	}
 
 	public static function register_assets() {

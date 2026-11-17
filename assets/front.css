@@ -120,6 +120,14 @@
 	.scb-row-body { padding: 2px 12px 12px; }
 	.scb-row-status { display: none; }
 }
+/* Tablet: foto sopra e scelta sotto, come da telefono (il tema affianca le colonne fino a 769px) */
+@media (max-width: 1199px) {
+	.scb-combo-page .product-image-summary-inner > .product-images,
+	.scb-combo-page .product-image-summary-inner > .summary { --wd-col: 12 !important; }
+	.scb-combo-page .product-image-summary-inner > .product-images { width: 100%; max-width: 520px; margin-inline: auto; }
+	.scb-combo-page .product-image-summary-inner > .product-images .woocommerce-product-gallery { position: static !important; top: auto !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.scb-item, .scb-progress-bar, .scb-row-chev { transition: none; }
 	.scb-row.is-open > .scb-row-body { animation: none; }
